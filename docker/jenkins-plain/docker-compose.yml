@@ -1,0 +1,14 @@
+version: '2'
+
+services:
+  jenkins:
+    build: .
+    container_name: jenkins
+    privileged: true
+    ports:
+      - 8080:8080
+    volumes:
+      - ./JENKINS-DATA:/var/jenkins_home
+      - ../../../demoapp:/tmp/demoapp
+      - ../../../demo-integration-tests:/tmp/demo-integration-tests
+      - /var/run/docker.sock:/var/run/docker.sock
