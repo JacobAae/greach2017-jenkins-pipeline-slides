@@ -1,0 +1,26 @@
+== Agenda
+
+* Jenkins
+* Pipeline Fundamentals
+* Defining Pipelines
+* Editor Support
+* Security
+* Case Study: Implementing part of our pipeline
+* Demo
+
+[NOTE.speaker]
+====
+Questions are welcome
+====
+
+
+=== Jacob Aae Mikkelsen
+
+* Senior Engineer at LEGO
+** Microservice based architechture on JVM
+* GR8Conf EU - Organizing Team Member
+* External Associate Professor - University of Southern Denmark
+* image:twitter.png[Twitter, 35,35 ,role="inline-image"] @JacobAae
+* Blogs http://grydeske.net/news[The Grails Diary]
+
+

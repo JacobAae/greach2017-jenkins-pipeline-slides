@@ -1,0 +1,68 @@
+== Global Libraries
+
+
+
+=== Make Jenkinsfile DRY
+
+Code can be shared, to avoid duplication
+
+
+=== Global Library
+image::global-libs.png[contain, size=90%]
+
+
+
+=== Shared Lib
+
+[source,groovy]
+----
+.
+├── README.adoc
+└── vars
+    └── ciskip.groovy
+----
+
+=== Shared Lib
+
+[source,groovy]
+----
+def call() {
+    node {
+        stage "checkout"
+        // get source code
+        checkout scm
+
+        // Respect ci-skip message
+        def lastMessage = sh(returnStdout: true, script: 'git log --format=%s -1')
+        if (lastMessage.contains('ci-skip')) {
+            currentBuild.result = 'ABORTED'
+            //error("Not building due to ci-skip")
+        }
+    }
+}
+----
+
+=== Code Checkout
+
+[source,groovy]
+----
+ciskip()
+----
+
+
+== Blue Ocean
+
+image::blueocean.png[contain, size=95%]
+
+[NOTE.speaker]
+====
+New project that rethinks the user experience of Jenkins.
+
+The following key features:
+
+* Sophisticated visualizations of CD pipelines
+* Personalization of the Jenkins UI to suit the role-based needs of each member of the DevOps team.
+* Pinpoint precision when intervention is needed and/or issues arise.
+* Native integration for branch and pull requests
+====
+

@@ -1,0 +1,66 @@
+== Writing Pipelines
+
+
+
+=== Writing Pipelines
+
+. Script in web UI (pipeline project)
+. Storing Jenkinsfile in project
+
+TIP: After writing it in UI, it should be stored with the project in VC
+
+
+=== Snippet generator
+
+
+Build in support for many steps.
+
+
+=== Snippet generator
+image::snippet-generator.png[contain, size=contain]
+
+
+
+=== Notable features
+
+TIP: Not covered later
+
+
+=== Parallel steps
+
+
+[source,groovy]
+----
+parallel(
+    longerTests: {
+        sh "./gradlew functional-tests"
+    },
+    quickerTests: {
+        sh "./gradlew unit-tests"
+    }
+)
+----
+
+
+
+
+
+=== Locking
+
+[source,groovy]
+----
+lock(resource: 'staging-server', inversePrecedence: true)
+----
+
+
+
+
+=== Node labels
+
+[source,groovy]
+----
+node('linux') {}
+node('windows') {}
+----
+
+

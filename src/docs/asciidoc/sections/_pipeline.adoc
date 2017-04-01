@@ -1,0 +1,134 @@
+== Pipeline Fundamentals
+
+
+=== Why
+
+
+* Easy to *build all branches*
+* CI Pipeline as *code* (stored with project in repo)
+* Pipelines can survive restarts of the Jenkins master.
+* Can optionally stop and wait for human input or approval
+* Ability to fork/join, loop, and perform work in parallel.
+* supports custom extensions to its DSL
+
+
+=== Why Not
+
+* Other CI systems do this as well
+* Syntax confusion
+** Declarative Pipeline
+** Scripted Pipeline
+
+=== Why
+
+TIP: It Groovy!
+
+
+== Scripted Pipeline
+
+[NOTE.speaker]
+====
+Will shortly touch on declarative later
+====
+
+
+
+=== Components
+
+[source,groovy]
+----
+node { // <1>
+    stage('Build') { // <2>
+        sh './gradlew build' // <3>
+    }
+}
+----
+
+<1> *node* - allocate an executor and workspace for this part of the Pipeline.
+<2> *stage* - a stage of this Pipeline.
+<3> *step* using `sh` Execute shell command
+
+=== Node
+
+
+. Schedules the steps in the Jenkins queue
+. Creates a workspace where work can be done on files checked out from source control.
+
+
+=== Stage
+
+
+Defining a conceptually distinct subset of the entire Pipeline
+
+=== Stage
+
+image::stage-view.png[size=contain]
+
+
+=== Step
+
+
+A single task
+
+Fundamentally steps tell Jenkins what to do.
+
+More steps exposed by various plugins
+
+
+== Declarative Pipeline
+
+=== Components
+
+[source,groovy]
+----
+pipeline {    // <1>
+    agent any    // <2>
+    stages {
+        stage('Example') {     // <3>
+            steps {     // <4>
+                echo 'Hello World'
+            }
+        }
+    }
+    post {     // <5>
+        always {     // <6>
+            echo 'I will always say Hello again!'
+        }
+    }
+}
+----
+
+[NOTE.speaker]
+====
+<1> Must be here to define pipeline
+<2> Define pipeline and executor
+<3> stage
+<4> step
+<5> Post section
+<6> Condition for executing
+====
+
+
+
+
+=== Declarative vs Scripted
+
+*Scripted*
+
+* Scripted is real Groovy (almost)
+* Very flexible
+* Imperative programming model
+
+*Declarative*
+
+* Simpler and more opinionated syntax
+* Smaller learning curve (for non-Groovy programmers)
+
+TIP: Fundamentally the same
+
+
+[NOTE.speaker]
+====
+As they can be restarted, collection.each is not possible
+====
+

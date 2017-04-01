@@ -1,0 +1,22 @@
+== Jenkins
+
+
+* Continous Integration
+* Continous Delivery/Deployment
+
+image::jenkins.png[]
+
+=== Continous Integration
+
+
+Continuous Integration (CI) is the practice of merging all developer working
+copies to a shared mainline several times a day.
+
+
+=== Continous Delivery/Deployment
+
+
+Continuous delivery (CD) is an approach in which teams produce software in short cycles,
+ensuring that the software can be reliably released at any time.
+
+

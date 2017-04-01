@@ -1,0 +1,29 @@
+== IntelliJ Support
+
+
+
+
+=== IntelliJ Support
+
+
+[source,groovy]
+----
+#!groovy
+----
+
+=== gsdl file
+
+
+Place `jenkins.gdsl` file in `src/main/resources`
+
+image::gdsl.png[]
+
+=== Autocomplete
+
+
+image::autocomplete.png[]
+
+WARNING: Only autocomplete for defined elements
+
+
+

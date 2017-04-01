@@ -1,0 +1,29 @@
+= CI Pipeline with Jenkinsfile/Jenkins 2.0
+Jacob Aae Mikkelsen - Greach 2017
+:numbered:
+
+include::sections/_agenda.adoc[]
+
+include::sections/_ci-intro.adoc[]
+
+include::sections/_pipeline.adoc[]
+
+include::sections/_writing-pipelines.adoc[]
+
+include::sections/_editor-support.adoc[]
+
+include::sections/_security.adoc[]
+
+include::sections/_case-study.adoc[]
+
+include::sections/_global-libs.adoc[]
+
+include::sections/_resources.adoc[]
+
+== Questions
+
+[NOTE.speaker]
+====
+Done
+====
+

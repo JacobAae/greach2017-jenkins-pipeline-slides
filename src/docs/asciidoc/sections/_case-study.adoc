@@ -1,0 +1,339 @@
+== Case Study - Deployment Pipeline
+
+
+=== Pipeline
+image::pipeline.png[contain, size=90%]
+
+
+
+
+=== Code Checkout
+
+
+Checkout code, and check for *ci-skip*
+
+=== Code Checkout
+
+[source,groovy]
+----
+node {
+    stage "checkout"
+        // get source code
+        checkout scm
+
+        // Respect ci-skip message
+        def lastMessage = sh(returnStdout: true, script:'git log --format=%s -1')
+        if (lastMessage.contains('ci-skip') ) {
+            currentBuild.result = 'ABORTED'
+            //error("Not building due to ci-skip")
+        }
+}
+
+if( currentBuild.result == 'ABORTED') {
+    return
+}
+
+----
+
+[NOTE.speaker]
+====
+Abort if ci-skip was found
+
+Pretty ugly - clearly a plugin that could add value when updated
+
+Outside a node - to be able to fail and stop
+====
+
+
+
+=== Clean and Stash
+
+[source,groovy]
+----
+stage 'Clean'
+    sh "./gradlew clean"
+    // save source code so we don't need to get it every time and also avoids conflicts
+    stash excludes: 'build/', includes: '**', name: 'source'
+
+----
+
+
+[NOTE.speaker]
+====
+Stash - can use code on multiple executors later
+====
+
+
+=== Static Code Analysis
+
+[source,groovy]
+----
+stage 'Static Code Analysis'
+    unstash 'source'
+    sh "./gradlew codenarcMain codenarcTest"
+    publishHTML(target: [allowMissing: false, alwaysLinkToLastBuild: false,
+        keepAll: true, reportDir:'build/reports/codenarc', reportFiles: 'main.html',
+         reportName: 'Codenarc Main'])
+    publishHTML(target: [allowMissing: false, alwaysLinkToLastBuild: false,
+        keepAll: true, reportDir:'build/reports/codenarc', reportFiles: 'test.html',
+        reportName: 'Codenarc Test'])
+----
+
+
+
+=== Unit tests
+
+[source,groovy]
+----
+stage 'Unit Tests'
+  sh "./gradlew test"
+
+  // publish JUnit results to Jenkins
+  step([$class:'JUnitResultArchiver', testResults:'**/build/test-results/test/*.xml'])
+
+  // save coverage reports for being processed during code quality phase.
+  stash includes: 'build/jacoco/*.exec', name: 'codeCoverage'
+----
+
+
+=== Coverage
+
+[source,groovy]
+----
+stage 'Coverage'
+    unstash 'source'
+    unstash 'codeCoverage'
+    sh "./gradlew jacocoTestReport"
+    publishHTML(target: [reportDir:'build/reports/jacoco', reportFiles: 'index.html',
+         reportName: 'Code Coverage'])
+----
+
+
+=== Error Handling
+
+
+Above 3 steps are wrapped in try/catch
+
+In the catch block we will sent an email with info
+
+
+=== Error Handling
+
+[source,groovy]
+----
+currentBuild.result = "FAILURE"
+
+mail body: "Project build error: ${e}" ,
+    from: 'jenkins@grydeske.com',
+    replyTo: 'jenkins@grydeske.com',
+    subject: "Initial test/coverage or codenarc failed for ${env.JOB_NAME}"+
+       " - Build # ${env.BUILD_NUMBER}",
+    to: "${env.CHANGE_AUTHOR_EMAIL}"
+
+throw e
+----
+
+[NOTE.speaker]
+====
+In decarative pipeline, this is handled prettier
+====
+
+
+
+
+
+=== User Input for release
+
+
+Some user should approve if we will release this change as a docker image
+
+TIP: This should be outside a node block, as we don't wan't to block a build executor in Jenkins
+
+=== User Input
+
+[source,groovy]
+----
+stage 'Docker Release?'
+def inputValue
+timeout(time:2, unit:'HOURS') {
+    inputValue = input( message: 'Release Docker Image?', ok: 'Yes',
+        submitterParameter: 'approver',
+        parameters: [[$class: 'ChoiceParameterDefinition',
+            choices: 'Minor\nPatch\nMajor', description: 'Major,Minor or Patch',
+            name: 'releaseType']])
+    echo "${inputValue.approver} ${inputValue.releaseType}"
+}
+----
+
+[NOTE.speaker]
+====
+Why are the choises not a groovy list?
+====
+
+
+=== User Input - Not long ago
+
+
+[source,groovy]
+----
+@NonCPS
+def getLatestApprover() {
+    def latest = null
+    def acts    // this returns a CopyOnWriteArrayList, safe for iteration
+    acts = currentBuild.rawBuild.getAllActions()
+    for (act in acts) {
+        if (act instanceof
+                org.jenkinsci.plugins.workflow.support.steps.input.ApproverAction) {
+            latest = act.userId
+        }
+    }
+    latest
+}
+----
+
+[NOTE.speaker]
+====
+ @NonCPS
+
+Marked on methods that contains non-serializable variables, as pipeline jobs should be able to be rescheduled
+====
+
+
+
+=== Releasing a docker image
+
+Gradle jobs for handling docker makes it simple
+
+
+[NOTE.speaker]
+====
+Can show later, if time permits it
+====
+
+
+=== Releasing a docker image
+
+[source,groovy]
+----
+unstash 'source'
+sh "git checkout ${env.BRANCH_NAME} && git pull"
+----
+
+
+[NOTE.speaker]
+====
+Need to be on actual branch, not in deteached head state
+
+If you wish to push a tag or commit for the
+
+Jenkins will by default do this
+====
+
+
+=== Releasing a docker image
+
+[source,groovy]
+----
+switch( releaseType ) {
+    case 'Patch':
+        sh "./gradlew releasePatch"
+        break
+    case 'Minor':
+        sh "./gradlew releaseMinor"
+        break
+    case 'Major':
+        sh "./gradlew releaseMajor"
+        break
+    default:
+        currentBuild.result = "FAILURE"
+}
+----
+
+[NOTE.speaker]
+====
+Here would be a good place to make documentation
+====
+
+
+
+=== Deploy to Dev
+
+
+Deploy the newly release docker image to DEV environment, and wait for it to be ready
+
+=== Deploy to Dev
+
+[source,groovy]
+----
+stage 'Deploy'
+    sh "./gradlew deploy${inputValue.releaseType}"
+----
+
+
+=== Deploy to Dev
+
+[source,groovy]
+----
+stage 'Wait til ready'
+    timeout(time:5, unit:'MINUTES') {
+        sh "./gradlew waitForDeploy"
+    }
+    sleep 5 // Wait for application to startup after deployment
+----
+
+
+
+
+
+
+=== Integration Tests
+
+Run integration tests against the entire deployed stack with the new component
+
+
+=== Integration Tests
+
+[source,groovy]
+----
+stage 'Integration Tests'
+    def integrationTestResult = build( job: '/demoapp-integration-tests/master',
+        wait: true, propagate: false)
+    echo "Result: ${integrationTestResult.result}"
+----
+
+[NOTE.speaker]
+====
+We will have to wait for the result, but not fail immediately.
+
+If fail rollback
+====
+
+
+
+
+
+
+=== Finish
+
+Act accordingly on result of integration tests (finish upgrade or rollback)
+
+=== Finish
+
+[source,groovy]
+----
+stage 'Finalize'
+    if( integrationTestResult.result == 'SUCCESS' ) {
+        echo "Tests passed - finishing upgrade"
+        sh "./gradlew -i approveDeploy"
+    } else {
+        echo "Tests failed with status ${integrationTestResult.result}"
+        sh "./gradlew -i rollbackDeploy"
+
+        currentBuild.result = "FAILURE"
+        // TODO Send error message
+    }
+----
+
+
+
+

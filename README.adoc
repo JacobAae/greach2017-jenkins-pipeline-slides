@@ -12,6 +12,7 @@ to get things working, and what is a real PITA to get working.
 In the process, the pipeline used for a development pipeline will be demoed, with code samples.
 
 
+
 == Links and resources
 
 * https://hub.docker.com/_/jenkins/
@@ -27,3 +28,5 @@ In the process, the pipeline used for a development pipeline will be demoed, wit
 
 TIP: It is not triviel to build and push docker images from a dockerized jenkins
 
+There are docker-compose files for two different configurations of Jenkins,
+that will store its configurations between restars in the docker folder

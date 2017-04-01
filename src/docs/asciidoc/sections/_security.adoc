@@ -1,0 +1,24 @@
+== Security
+
+
+
+=== Missing Permissions
+
+
+You will not have priveledges to write any code by default in the Jenkinsfile,
+but need to grant access for priveledged instructions
+
+
+=== Plugin:	Script Security Plugin
+
+
+image::in-process-script-approval.png[]
+
+
+=== Easy overview
+
+image::approve-scripts.png[]
+
+=== Global Library
+
+TIP: Global libraries runs as trusted code, and have much less restrictions
