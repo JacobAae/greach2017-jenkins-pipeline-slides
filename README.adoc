@@ -12,6 +12,12 @@ to get things working, and what is a real PITA to get working.
 In the process, the pipeline used for a development pipeline will be demoed, with code samples.
 
 
+== Related Repositories for Presentation
+
+* https://github.com/JacobAae/greach2017-jenkins-pipeline-demoapp[Demo-app with Jenkinsfile]
+* https://github.com/JacobAae/greach2017-jenkins-pipeline-demoapp-integrationtests[Integration tests for demo-app]
+* https://github.com/JacobAae/git-remote-add-origin-git-github.com-JacobAae-greach2017-jenkins-pipeline-global-lib[Global library example]
+
 
 == Links and resources
 
