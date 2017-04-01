@@ -1,0 +1,29 @@
+= Jenkins pipeline
+
+== Abstract
+
+*Stuck on Jenkins or High on Pipeline?*
+
+In this talk, I will take a critical look at the Jenkins Pipelines.
+
+What is the status of the documentation, what are the nooks and crannies
+to get things working, and what is a real PITA to get working.
+
+In the process, the pipeline used for a development pipeline will be demoed, with code samples.
+
+
+== Links and resources
+
+* https://hub.docker.com/_/jenkins/
+* http://blog.alexellis.io/jenkins-2-0-first-impressions/
+* https://www.digitalocean.com/community/tutorials/how-to-set-up-a-private-docker-registry-on-ubuntu-14-04
+* http://rancher.com/
+* http://rancher.com/create-a-private-docker-registry-to-integrate-with-rancher/
+
+
+== Docker Jenkins
+
+ docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword
+
+TIP: It is not triviel to build and push docker images from a dockerized jenkins
+
